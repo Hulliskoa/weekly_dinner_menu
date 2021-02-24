@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h1>Ukens oppskrifter fra Truls 😘</h1>
+    <p>Alle oppskrifter er beregnet til ca 4 porsjoner</p>
+    <p>Programmet som lager den ukentlige menyen er under uvikling og feil derfor forekomme i 
+    de ulike mengdene som er oppgitt</p>
+    <div style="padding-left: 0.1rem; border: solid black; width: 95%; word-wrap: break-word; padding-bottom: 1rem;">
+    <h2>Handleliste</h2>
+     
+     {% for category in shoppingList %}
+          {% for ingredient in shoppingList[category] %}
+                <div style="width: 90%; display: flex; border-bottom: 0.1px solid rgba(0, 0, 0, .2)"> 
+                    <div style="width: 60%;">
+                        <span id="check">
+                        <input type="checkbox">
+                        <label> {{ ingredient["ingredient"].capitalize() }} </label><br>
+                        </span>
+                    </div>
+                     <div style="width: 10%; float:left;"> 
+                    {% if category in unicode %}
+                         {{'&#x' + unicode[category] + ";"}}
+
+                {% endif %}
+                    </div>
+                    <div style="float:left;"> 
+                           {{ ingredient["amount"] }} {{ ingredient["unit"] }} 
+                    </div>
+                </div>
+            {% endfor %}
+    {% endfor %}
+     <h3>Basisvarer</h3>
+    {% for ingredient in basic %}
+        <div style="width: 90%; display: flex; border-bottom: 0.1px solid rgba(0, 0, 0, .2)"> 
+            <div style="width: 60%;">
+                <input type="checkbox">
+                <label> {{ ingredient["ingredient"].capitalize() }} </label><br>      
+            </div>
+            <div style="width: 10%; float:left;"> 
+                {% if category in unicode %}
+                         {{'&#x' + unicode[category] + ";"}}
+                {% endif %}
+            </div>
+            <div style="float:left;"> 
+                {{ ingredient["amount"] }} {{ ingredient["unit"] }} 
+            </div>
+        </div>
+    {% endfor %}
+    </div>      
+    <h2>Meny</h2>
+    <p>
+      {% for recipe in recipes['recipes'] %}
+     <p> 
+        <div style="padding-left: .1rem; border: solid black; width: 95%; word-wrap: break-word; padding-bottom: 1rem;color:black;">
+         <h3>{{ recipe['day'].capitalize() }}</h3>
+            {{ recipe['name'].capitalize()  }}
+    	      	{% if recipe['link'] != 0 %}
+    	     		- <a href={{ recipe['link'] }}>Link til oppskrift</a>
+    	     	{% else %}
+    	     			- ingen lenke
+    	     	{% endif %}
+                <div>
+                
+                    <div  >
+                      <h4>Ingredienser</h4>
+                      
+                         {% for ingredient in recipe['ingredients'] %}
+
+                             <div style="width: 90%; display: flex; border-bottom: 0.1px solid rgba(0, 0, 0, .2)"> 
+                                <div style="width: 70%;"> 
+                                    {{ ingredient["ingredient"].capitalize() }} 
+                                </div>
+                                <div style="float:left;"> 
+                                    {{ ingredient["amount"] }} {{ ingredient["unit"] }} 
+                                </div>
+                            </div>
+                          
+                          {% endfor %}
+                        <h4>Beskrivelse</h4>
+                    {{recipe['description'].capitalize()}}
+                    </div>
+                </div>
+     	</div>
+ 	</p>
+    {% endfor %}
+    </p>
+   
+{% endblock %}

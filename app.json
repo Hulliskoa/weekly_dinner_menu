@@ -1,0 +1,39 @@
+{
+  "name": "Recipe randomizer",
+  "description": "This app creates weekly random recipes",
+  "keywords": [
+    "recipes",
+    "python"
+  ],
+  "repository": "https://github.com/Hulliskoa/weekly_dinner_menu",
+  "scripts": {
+    "postdeploy": "bundle exec rake bootstrap"
+  },
+  "env": {
+    "USER": {
+      "description": "The username of gmail account to use for emails",
+      "value": ""
+    },
+    "PASSWORD": {
+      "description": "password to the Gmail account",
+      "value": ""
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
+    "scripts": {
+    "sendEmails": "python main.py",
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/stomita/heroku-buildpack-python"
+    }
+  ],
+  "environments": {
+
+  }
+}

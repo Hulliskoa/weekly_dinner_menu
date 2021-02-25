@@ -12,6 +12,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from openpyxl import load_workbook
 import re
+
 class MatpratScraper:
     def __init__(self):
         self.service = Service('chromedriver.exe')
@@ -23,10 +24,10 @@ class MatpratScraper:
 
     def scrape(self, urlToScrape):
 
-        xlsRecipes = pd.read_excel(r'../Oppskrifter.xlsx')
-        xlsRecipes.to_json(r'¨../jsonDocs/xlsrecipes.json')
+        xlsRecipes = pd.read_excel(os.path.join(os.path.dirname(__file__), '../Oppskrifter.xlsx'))
+        xlsRecipes.to_json(os.path.join(os.path.dirname(__file__), '../jsonDocs/xlsrecipes.json'))
 
-        scrapedRecipes = pd.read_json(r'../jsonDocs/scrapedRecipes.json')
+        scrapedRecipes = pd.read_json(os.path.join(os.path.dirname(__file__), '../jsonDocs/scrapedRecipes.json'))
 
         columns = {"dish", "amount", "unit", "ingredient",
                    "serves", "url", "weekend", "veggie", "description"}
@@ -89,9 +90,9 @@ class MatpratScraper:
 
         if recipeDf["dish"][0] not in scrapedRecipes["dish"].values:
             scrapedRecipes = scrapedRecipes.append(recipeDf, ignore_index=True)
-            scrapedRecipes.to_json(r'../jsonDocs/scrapedRecipes.json')
+            scrapedRecipes.to_json(os.path.join(os.path.dirname(__file__), "../jsonDocs/scrapedRecipes.json"))
             recipes = scrapedRecipes.append(xlsRecipes, ignore_index=True)
-            recipes.to_json(r'../jsonDocs/recipes.json')
+            recipes.to_json(os.path.join(os.path.dirname(__file__), "../jsonDocs/recipes.json"))
             print("added new recipe")
 
         self.driver.close()

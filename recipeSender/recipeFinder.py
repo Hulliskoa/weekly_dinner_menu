@@ -2,48 +2,23 @@ import pandas as pd
 import random
 import math
 import copy
+import os
+import sys
 from collections import OrderedDict
+sys.path.insert(1, '../')
+from db import MongoDBHandler
 
 
 class RecipeFinder:
 
     def __init__(self):
-        #self.recipes = pd.read_excel(r'../Oppskrifter.xlsx')
-        self.recipes = pd.read_json(r'../recipeScraper/recipes.json')
-        self.recipes = self.recipes.fillna(0)
+        self.db = MongoDBHandler()
+        self.recipes =  self.db.getDictFromCollection("recipes")
         self.skipIngredients = {"vann"}
 
+
     def get_unique_recipes(self):
-        dishes = self.recipes["dish"].unique()
-
-        groupedDishes = self.recipes.groupby(by=["dish"], dropna=False).mean()
-
-        columns = ['dish', 'url', 'veggie', 'weekend']
-        uniqueDishes = pd.DataFrame(index=None, columns=columns)
-
-        for x in dishes:
-            for row, index in self.recipes.iterrows():
-                if x == index.dish:
-                    ingredients = []
-                    for row2, index2 in self.recipes.iterrows():
-                        if(index2.dish == index.dish):
-                            ingredients.append(
-                                {"ingredient": index2.ingredient, "amount": index2.amount, "unit": index2.unit})
-
-                    uniqueDishes = uniqueDishes.append(
-                        {
-                            'dish': x,
-                            'url': index.url,
-                            'veggie': index.veggie,
-                            'weekend': index.weekend,
-                            'ingredients': ingredients,
-                            'serves': index.serves,
-                            'description': index.description
-                        }, ignore_index=True)
-
-                    break
-
-        return uniqueDishes
+        return self.recipes
 
     def pick_recipes(self, uniqueDishes, serves):
         weekRecipes = {}
@@ -56,17 +31,18 @@ class RecipeFinder:
         ]
 
         while currentDay <= 6:
-            dishtype = uniqueDishes.sample()
-            isWeekend = dishtype["weekend"].squeeze()
+            dishtype = random.choice(uniqueDishes)
+            print(dishtype)
+            isWeekend = dishtype["weekend"]
             ingredients = []
-            if ((isWeekend == "no") and (currentDay <= 3) and (dishtype.dish.squeeze() not in usedRecipes)):
-                weekRecipes[weekdays[currentDay]] = dishtype.to_dict('records')
-                usedRecipes.append(dishtype["dish"].squeeze())
+            if ((isWeekend == "no") and (currentDay <= 3) and (dishtype["_id"] not in usedRecipes)):
+                weekRecipes[weekdays[currentDay]] = dishtype
+                usedRecipes.append(dishtype["_id"])
                 currentDay += 1
 
-            if ((isWeekend == "yes") and (currentDay > 3) and (dishtype.dish.squeeze() not in usedRecipes)):
-                weekRecipes[weekdays[currentDay]] = dishtype.to_dict('records')
-                usedRecipes.append(dishtype["dish"].squeeze())
+            if ((isWeekend == "yes") and (currentDay > 3) and (dishtype["_id"] not in usedRecipes)):
+                weekRecipes[weekdays[currentDay]] = dishtype
+                usedRecipes.append(dishtype["_id"])
 
                 currentDay += 1
 
@@ -75,20 +51,19 @@ class RecipeFinder:
         for x in weekRecipes.keys():
 
             self.__unit_translator(
-                weekRecipes[x][0]["ingredients"], weekRecipes[x][0]["serves"], serves)
+                weekRecipes[x]["ingredients"], weekRecipes[x]["serves"], serves)
 
             a_dictionary = {
                 "day": x,
-                "name": weekRecipes[x][0]["dish"],
-                "link": weekRecipes[x][0]["url"],
-                "ingredients": weekRecipes[x][0]["ingredients"],
-                "description": weekRecipes[x][0]["description"],
-                "serves": weekRecipes[x][0]["serves"]}
+                "name": weekRecipes[x]["_id"],
+                "link": weekRecipes[x]["url"],
+                "ingredients": weekRecipes[x]["ingredients"],
+                "description": weekRecipes[x]["description"],
+                "serves": weekRecipes[x]["serves"]}
             weekdays.append(a_dictionary)
         data = []
         chosenRecipes = {"recipes": weekdays}
         data.append(chosenRecipes)
-
         return data
 
     def __unit_translator(self, ingredients, recipeServings, serves):
@@ -102,8 +77,7 @@ class RecipeFinder:
         for ingredient in ingredients:
 
             if ingredient["unit"] in unitTranslationDict:
-                ingredient["amount"] = math.ceil(((unitTranslationDictAmount[ingredient["unit"]] * float(
-                    ingredient["amount"])) / recipeServings) * serves)
+                ingredient["amount"] = math.ceil(((unitTranslationDictAmount[ingredient["unit"]] * float(ingredient["amount"])) / recipeServings) * serves)
                 ingredient["unit"] = unitTranslationDict[ingredient["unit"]]
             else:
                 ingredient["amount"] = math.ceil((
@@ -139,8 +113,8 @@ class RecipeFinder:
 
             for ingredient in recipe["ingredients"]:
 
-                if ingredient["ingredient"] in self.skipIngredients:
-                    print("Skipped " + ingredient["ingredient"])
+                if ingredient["name"] in self.skipIngredients:
+                    print("Skipped " + ingredient["name"])
                     continue
 
                 amountDict = {}
@@ -148,13 +122,13 @@ class RecipeFinder:
                 ingredient["amount"],  ingredient["unit"] = self.__shoppinglist_unit_translator(
                     ingredient["unit"], ingredient["amount"])
 
-                unitDict[ingredient["ingredient"]] = ingredient["unit"]
+                unitDict[ingredient["name"]] = ingredient["unit"]
 
-                if ingredient["ingredient"] in ingredientsdict:
-                    ingredientsdict[ingredient["ingredient"]
+                if ingredient["name"] in ingredientsdict:
+                    ingredientsdict[ingredient["name"]
                                     ] += math.ceil(ingredient["amount"])
                 else:
-                    ingredientsdict[ingredient["ingredient"]
+                    ingredientsdict[ingredient["name"]
                                     ] = math.ceil(ingredient["amount"])
 
         shoppingList = map(lambda n1:
@@ -168,25 +142,32 @@ class RecipeFinder:
 
     def __categorize_shopping_list(self, shoppingIngredients):
 
-        categories = pd.read_excel("../Oppskrifter.xlsx", 'categories')
-        categories["category"] = categories["category"].fillna(
-            "ikke kategorisert")
-
+       # categories = pd.read_excel(os.path.join(os.path.dirname(
+       #    __file__), '../Oppskrifter.xlsx'), 'categories')
+       # categories["category"] = categories["category"].fillna(
+        #    "ikke kategorisert")
+        categories = self.db.returnCategoriesDF()
         categories["basic"] = categories["basic"].fillna("no")
 
-        basicIngredients = pd.Series(
-            categories.basic.values, index=categories.ingredient).to_dict()
 
+        basicIngredients = pd.Series(
+            categories.basic.values, index=categories._id).to_dict()
         categorizedShoppingList = {}
         basicShoppingList = []
 
         for ingredient in shoppingIngredients:
-            if basicIngredients[ingredient["ingredient"]] == "yes":
-                basicShoppingList.append(ingredient)
-                continue
+            if ingredient["ingredient"] in basicIngredients:
+                if basicIngredients[ingredient["ingredient"]] == "yes":
+                    basicShoppingList.append(ingredient)
+                    continue
 
-            currentCategory = categories.loc[categories['ingredient']
+            currentCategory = categories.loc[categories['_id']
                                              == ingredient["ingredient"]]
+
+            if len(list(currentCategory["category"])) == 0:
+                categories.append(
+                    {"ingredient": ingredient["ingredient"], "category": "uncategorized", "basic": "no"})
+                currentCategory["category"] = ["uncategorized"]
 
             if currentCategory["category"].squeeze() in categorizedShoppingList:
                 categorizedShoppingList[currentCategory["category"].squeeze()].append(
@@ -197,5 +178,4 @@ class RecipeFinder:
                 ]
                 categorizedShoppingList[currentCategory["category"].squeeze()].append(
                     ingredient)
-
         return categorizedShoppingList, basicShoppingList

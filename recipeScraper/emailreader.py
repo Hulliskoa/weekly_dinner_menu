@@ -17,5 +17,5 @@ class EmailReader:
                     print("matprat")
                     return code[0].lower(),  code[1]
                 else:
-                    return "none"
+                    return "no messages found"
 

@@ -3,8 +3,7 @@ from dotenv import load_dotenv
 import os
 
 def load_settings():
-    try:
-        load_dotenv()
+    load_dotenv()
 
 # OR, explicitly providing path to '.env'
 #from pathlib import Path  # Python 3.6+ only

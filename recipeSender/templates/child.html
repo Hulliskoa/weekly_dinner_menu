@@ -3,8 +3,7 @@
 
     <h1>Ukens oppskrifter fra Truls 😘</h1>
     <p>Alle oppskrifter er beregnet til ca 4 porsjoner</p>
-    <p>Programmet som lager den ukentlige menyen er under uvikling og feil derfor forekomme i 
-    de ulike mengdene som er oppgitt</p>
+    <p>Jobber med å rette opp noen småfeil i beregning av mengder. Hvis det f.eks står flere hundre porsjoner av noe sjekk oppskriftene lengre ned</p>
     <div style="padding-left: 0.1rem; border: solid black; width: 95%; word-wrap: break-word; padding-bottom: 1rem;">
     <h2>Handleliste</h2>
      
@@ -18,8 +17,8 @@
                         </span>
                     </div>
                      <div style="width: 10%; float:left;"> 
-                    {% if category in unicode %}
-                         {{'&#x' + unicode[category] + ";"}}
+                    {% if category in unicode['unicode'] %}
+                         {{'&#x' + unicode['unicode'][category] + ";"}}
 
                 {% endif %}
                     </div>
@@ -29,16 +28,17 @@
                 </div>
             {% endfor %}
     {% endfor %}
-     <h3>Basisvarer</h3>
-    {% for ingredient in basic %}
+    <h3>Basisvarer</h3>
+    {% for category in basic %}
+    {% for ingredient in basic[category] %}
         <div style="width: 90%; display: flex; border-bottom: 0.1px solid rgba(0, 0, 0, .2)"> 
             <div style="width: 60%;">
                 <input type="checkbox">
                 <label> {{ ingredient["ingredient"].capitalize() }} </label><br>      
             </div>
             <div style="width: 10%; float:left;"> 
-                {% if category in unicode %}
-                         {{'&#x' + unicode[category] + ";"}}
+                {% if category in unicode['unicode'] %}
+                         {{'&#x' + unicode['unicode'][category] + ";"}}
                 {% endif %}
             </div>
             <div style="float:left;"> 
@@ -46,6 +46,7 @@
             </div>
         </div>
     {% endfor %}
+        {% endfor %}
     </div>      
     <h2>Meny</h2>
     <p>
@@ -68,7 +69,7 @@
 
                              <div style="width: 90%; display: flex; border-bottom: 0.1px solid rgba(0, 0, 0, .2)"> 
                                 <div style="width: 70%;"> 
-                                    {{ ingredient["ingredient"].capitalize() }} 
+                                    {{ ingredient["name"].capitalize() }} 
                                 </div>
                                 <div style="float:left;"> 
                                     {{ ingredient["amount"] }} {{ ingredient["unit"] }} 

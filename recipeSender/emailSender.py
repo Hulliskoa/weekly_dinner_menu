@@ -4,6 +4,8 @@ from jinja2 import Environment, FileSystemLoader
 import os
 from smtplib import SMTP
 import math
+import sys
+from db import MongoDBHandler
 import pandas as pd
 sys.path.insert(1, '../')
 
@@ -48,14 +50,12 @@ class EmailSender:
         recipesJson = recipes
 
         template = self.env.get_template('child.html')
-
-        categories = pd.read_excel("../Oppskrifter.xlsx", 'sorted')
-        categories = categories.set_index('sorted-categories')
-        categories = categories.to_dict()
-
-        print(categories)
-        output = template.render(recipes=recipes[0], shoppingList = shoppingList, basic = basic, unicode = categories["unicode"], serves = serves, math=math)
-        names, emails = self.__get_contacts('../mycontacts.txt')
+        db = MongoDBHandler()
+        sorted_categories = db.returnSortedCategoriesDF()
+        sorted_categories = sorted_categories[["_id", "unicode"]].set_index('_id').to_dict()
+        print(sorted_categories)
+        output = template.render(recipes=recipes[0], shoppingList = shoppingList, basic = basic, unicode = sorted_categories, serves = serves, math=math)
+        names, emails = self.__get_contacts(os.path.join(os.path.dirname(__file__), '../mycontacts.txt'))
         for name, email in zip(names, emails):
             self.__send_mail(output, email)
 

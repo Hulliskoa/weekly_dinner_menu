@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+	{% for recipe in allrecipes %}
+		<div class="item">
+			<div class="text">{{recipe['_id'].capitalize()}}</div>
+			<form class="editForm" action="/edit/{{recipe['_id']}}"  method="get">
+		    	<input class="submitButton" type="submit" name="edit" value="Edit recipe" />
+			</form>
+	</div>
+	{% endfor %}
+	
+{% endblock %}

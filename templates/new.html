@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+	
+			<form id="recipeNameForm" class="choices" method="post">
+				<LABEL>Name</LABEL>
+					<input class="nameInput"   type="input" name = "name" value="name">
+			</form>
+
+	
+			<form id="servesForm" class="choices"   method="post">
+					<LABEL>Serves</LABEL>
+					<input class="servesInput"   type="input" name = "serves" value="">
+			</form>
+
+			<form id="weekendForm" class="choices" method="post">
+			
+					<label for="weekend">Weekend recipe:</label>
+						<select id="weekend" name="weekend">
+						  	  <option selected value="yes">yes</option>
+						  	  <option value="no">no</option>
+						</select>
+			</form>
+
+			<form id="veggieForm" class="choices" method="post">
+			
+					<label for="veggie">Veggie recipe:</label>
+						<select id="veggie" name="veggie">
+						  	  <option selected value="yes">yes</option>
+						  	  <option value="no">no</option>
+						</select>
+			</form>
+
+			<form id="urlForm" class="choices"  method="post">
+					<label for="url">Url to recipe:</label>
+					<input class="urlInput"   type="input" name = "url" value=""/>
+			</form>
+
+			<form id="descriptionForm" class="choices"   method="post">
+					<label for="url">Description:</label>
+					<input class="urlInput"   type="input" name = "url" value=""/>
+			</form>
+
+			<form id="editRecipeForm" class="editrecipe"   method="post">
+				 <div class="flex-row-container">
+					<input class="flex-row-item"  type="input" placeholder="ingredient" name = "name" value="">
+					<input class="flex-row-item"  type="input" placeholder="amount" name = "amount" value="">
+					<input class="flex-row-item"  type="input" placeholder="unit" name = "unit" value="">		
+					</div>
+			</form>
+
+		
+		<button class = "mainbuttons" id="addInput" >Add input</button>
+		<button  class = "mainbuttons" id="saveRecipe" >Save</button>
+<script type="text/javascript">
+
+	var form = document.getElementById("editRecipeForm");
+async function postData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+	    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+	    mode: 'cors', // no-cors, *cors, same-origin
+	    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+	    credentials: 'same-origin', // include, *same-origin, omit
+	    headers: {
+	      'Content-Type': 'application/json'
+	      // 'Content-Type': 'application/x-www-form-urlencoded',
+	    },
+	    redirect: 'follow', // manual, *follow, error
+	    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+	    body: JSON.stringify(data) // body data type must match "Content-Type" header
+	  });
+	  return  response.json(); // parses JSON response into native JavaScript objects
+	}
+
+	document.getElementById("saveRecipe").addEventListener("click", function () {
+		var url = document.getElementById("urlForm").elements[0].value
+		var serves = document.getElementById("servesForm").elements[0].value;
+		var weekend = document.getElementById("weekendForm").elements[0].value;
+		var veggie = document.getElementById("veggieForm").elements[0].value;
+		var description = document.getElementById("descriptionForm").elements[0].value;
+		var elements = document.getElementById("editRecipeForm").elements;
+
+		var json = {
+			"_id": document.getElementById("recipeNameForm").elements[0].value,
+			"ingredients":[],
+			"url" : url,
+			"serves" : serves,
+			"veggie" : veggie,
+			"weekend" : weekend,
+			"description" : description
+		}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ((i % 3) === 0){
+				const ingredient = {
+					"name" : elements[i].value,
+					"amount" : elements[i + 1].value,
+					"unit" : elements[i + 2].value
+				}
+				json["ingredients"].push(ingredient)
+				}
+			}
+			var url = "/new/newRecipe" 
+	  		postData(url, json)
+		});
+
+	document.getElementById("addInput").addEventListener("click", function () {
+				var container = document.getElementsByClassName("flex-row-container")[0];
+                var elementsToCopy = container.getElementsByTagName("input")
+                var input1 = elementsToCopy[0].cloneNode(true);
+                var input2 = elementsToCopy[1].cloneNode(true);
+                var input3 = elementsToCopy[2].cloneNode(true);
+                container.appendChild(input1);
+                container.appendChild(input2);
+                container.appendChild(input3);
+	})
+</script>
+{% endblock %}

@@ -1,3 +1,4 @@
+from db import MongoDBHandler
 import pandas as pd
 import random
 import math
@@ -6,16 +7,14 @@ import os
 import sys
 from collections import OrderedDict
 sys.path.insert(1, '../')
-from db import MongoDBHandler
 
 
 class RecipeFinder:
 
     def __init__(self):
         self.db = MongoDBHandler()
-        self.recipes =  self.db.getDictFromCollection("recipes")
+        self.recipes = self.db.getDictFromCollection("recipes")
         self.skipIngredients = {"vann"}
-
 
     def get_unique_recipes(self):
         return self.recipes
@@ -77,7 +76,8 @@ class RecipeFinder:
         for ingredient in ingredients:
 
             if ingredient["unit"] in unitTranslationDict:
-                ingredient["amount"] = math.ceil(((unitTranslationDictAmount[ingredient["unit"]] * float(ingredient["amount"])) / recipeServings) * serves)
+                ingredient["amount"] = math.ceil(
+                    ((unitTranslationDictAmount[ingredient["unit"]] * float(ingredient["amount"])) / recipeServings) * serves)
                 ingredient["unit"] = unitTranslationDict[ingredient["unit"]]
             else:
                 ingredient["amount"] = math.ceil((
@@ -128,8 +128,8 @@ class RecipeFinder:
                     ingredientsdict[ingredient["name"]
                                     ] += math.ceil(ingredient["amount"])
                 else:
-                    ingredientsdict[ingredient["name"]
-                                    ] = math.ceil(ingredient["amount"])
+                    ingredientsdict[ingredient["name"]] = math.ceil(
+                        ingredient["amount"])
 
         shoppingList = map(lambda n1:
                            {
@@ -142,13 +142,8 @@ class RecipeFinder:
 
     def __categorize_shopping_list(self, shoppingIngredients):
 
-       # categories = pd.read_excel(os.path.join(os.path.dirname(
-       #    __file__), '../Oppskrifter.xlsx'), 'categories')
-       # categories["category"] = categories["category"].fillna(
-        #    "ikke kategorisert")
         categories = self.db.returnCategoriesDF()
         categories["basic"] = categories["basic"].fillna("no")
-
 
         basicIngredients = pd.Series(
             categories.basic.values, index=categories._id).to_dict()
@@ -174,8 +169,6 @@ class RecipeFinder:
                     ingredient)
 
             else:
-                categorizedShoppingList[currentCategory["category"].squeeze()] = [
-                ]
-                categorizedShoppingList[currentCategory["category"].squeeze()].append(
-                    ingredient)
+                categorizedShoppingList[currentCategory["category"].squeeze()] = []
+                categorizedShoppingList[currentCategory["category"].squeeze()].append(ingredient)
         return categorizedShoppingList, basicShoppingList

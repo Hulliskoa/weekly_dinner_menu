@@ -15,6 +15,23 @@ class MongoDBHandler:
         col = self.db[collection]
         col.insert(records)
 
+    def insertItem(self, collection, entity):
+        try:
+            col = self.db[collection]
+            col.insert(json.loads(entity))
+            print("Recipe stored to " + collection)
+        except Exception as e:
+            print("An exception occurred ::", e)
+
+    def deleteItem(self, collection, entity):
+        try:
+            col = self.db[collection]
+            col.delete_one({"_id": entity})
+            print(Entity + " deleted from " + collection)
+        except Exception as e:
+            print("An exception occurred ::", e)
+
+
     def deleteCollection(self, collection):
         col = self.db[collection]
         col.remove()
@@ -28,6 +45,11 @@ class MongoDBHandler:
     def getDictFromCollection(self, collection):
         col = self.db[collection]
         array = list(col.find())
+        return array
+
+    def getItemInCollection(self, collection, item):
+        col = self.db[collection]
+        array = list(col.find({"_id": item}) )
         return array
 
     def returnDistinctIngredients(self):

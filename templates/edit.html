@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class="flex-row-container">
+		
+		<div class="flex-item" id="recipename">{{item[0]["_id"]}}</div>
+		<button class="flex-item" id="deleteRecipe" >Delete recipe</button>
+	</div>
+
+	
+			<form id="servesForm" class="choices" action="/edit/{{item[0]['_id']}}"  method="post">
+			
+					<LABEL>Serves:</LABEL>
+					<input class="servesInput"   type="input" name = "serves" value="{{item[0]['serves']}}">
+			</form>
+
+			<form id="weekendForm" class="choices" action="/edit/{{item[0]['_id']}}"  method="post">
+			
+					<label for="weekend">Weekend recipe:</label>
+						<select id="weekend" name="weekend">
+					
+						  {%if item[0]["weekend"] == "yes" %}
+						  	  <option selected value="yes">yes</option>
+						  	  <option value="no">no</option>
+						  {%else%}
+						    <option selected value="no">no</option>
+						  		  <option value="yes">yes</option>
+						  {%endif%}
+				
+	
+						</select>
+			</form>
+
+			<form id="veggieForm" class="choices" action="/edit/{{item[0]['_id']}}"  method="post">
+			
+					<label for="veggie">Veggie recipe:</label>
+						<select id="veggie" name="veggie">
+					
+						  {%if item[0]["veggie"] == "yes" %}
+						  	  <option selected value="yes">yes</option>
+						  	  <option value="no">no</option>
+						  {%else%}
+						    <option selected value="no">no</option>
+						  		  <option value="yes">yes</option>
+						  {%endif%}
+				
+	
+						</select>
+			</form>
+			<form id="urlForm" class="choices" action="/edit/{{item[0]['_id']}}"  method="post">
+					<label for="url">Url to recipe:</label>
+					<input class="urlInput"   type="input" name = "url" value="{{item[0]['url']}}"/>
+			</form>
+
+			<form id="descriptionForm" class="choices" action="/edit/{{item[0]['_id']}}"  method="post">
+					<label for="url">Description:</label>
+					<input class="urlInput"   type="input" name = "url" value="{{item[0]['description']}}"/>
+			</form>
+			<form id="editRecipeForm" class="editrecipe" action="/edit/{{item[0]['_id']}}"  method="post">
+				 <div class="flex-row-container">
+					{% for ingredient in item[0]["ingredients"] %}
+					<input class="flex-row-item"   type="input" name = "name" value="{{ingredient['name'].capitalize()}}">
+					<input class="flex-row-item"  type="input" name = "amount" value="{{ingredient['amount']}}">
+					<input class="flex-row-item"  type="input" name = "unit" value="{{ingredient['unit']}}">
+					{%endfor%}
+					</div>
+			</form>
+
+		
+
+		<button id="updateRecipe" >Edit</button>
+<script type="text/javascript">
+
+	var form = document.getElementById("editRecipeForm");
+
+	document.getElementById("deleteRecipe").addEventListener("click", function () {
+	
+
+		var json = {
+			"_id": document.getElementById("recipename").innerHTML,
+		}
+		var url = "/edit/" + document.getElementById("recipename").innerHTML
+	  	deleteData(url, json)
+		});
+
+	document.getElementById("updateRecipe").addEventListener("click", function () {
+		var url = document.getElementById("urlForm").elements[0].value
+		var serves = document.getElementById("servesForm").elements[0].value;
+		var weekend = document.getElementById("weekendForm").elements[0].value;
+		var veggie = document.getElementById("veggieForm").elements[0].value;
+		var description = document.getElementById("descriptionForm").elements[0].value;
+		var elements = document.getElementById("editRecipeForm").elements;
+
+		var json = {
+			"_id": document.getElementsByClassName("recipename")[0].innerHTML,
+			"ingredients":[],
+			"url" : url,
+			"serves" : serves,
+			"veggie" : veggie,
+			"weekend" : weekend,
+			"description" : description
+		}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ((i % 3) === 0){
+				const ingredient = {
+					"name" : elements[i].value,
+					"amount" : elements[i + 1].value,
+					"unit" : elements[i + 2].value
+				}
+				json["ingredients"].push(ingredient)
+				}
+			}
+			var url = "/edit/" + document.getElementById("recipename").innerHTML
+	  		postData(url, json)
+		});
+async function deleteData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+	    method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+	    mode: 'cors', // no-cors, *cors, same-origin
+	    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+	    credentials: 'same-origin', // include, *same-origin, omit
+	    headers: {
+	      'Content-Type': 'application/json'
+	      // 'Content-Type': 'application/x-www-form-urlencoded',
+	    },
+	    redirect: 'follow', // manual, *follow, error
+	    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+	    body: JSON.stringify(data) // body data type must match "Content-Type" header
+	  });
+	  return  response.json(); // parses JSON response into native JavaScript objects
+	}
+
+	async function postData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+	    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+	    mode: 'cors', // no-cors, *cors, same-origin
+	    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+	    credentials: 'same-origin', // include, *same-origin, omit
+	    headers: {
+	      'Content-Type': 'application/json'
+	      // 'Content-Type': 'application/x-www-form-urlencoded',
+	    },
+	    redirect: 'follow', // manual, *follow, error
+	    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+	    body: JSON.stringify(data) // body data type must match "Content-Type" header
+	  });
+	  return  response.json(); // parses JSON response into native JavaScript objects
+	}
+</script>
+{% endblock %}

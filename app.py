@@ -50,8 +50,10 @@ class editRecipeEndpoint(MethodView):
 
     def delete(self, entity):
         print(entity)
+        db.deleteItem("recipes", entity)
         """ Responds to DELETE requests """
-        return "Responding to a DELETE request"
+        allRecipes = db.getDictFromCollection("recipes")
+        return "Responding to delete request"
 
 
 app.add_url_rule("/edit/<entity>",

@@ -25,10 +25,9 @@ class RecipeFinder:
 
         currentDay = 0
         weekdays = [
-            "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag",
-            "søndag"
+            "mandag", "tirsdag", "onsdag", "torsdag"
         ]
-
+#, "fredag", "lørdag", "søndag"
         while currentDay <= 6:
             dishtype = random.choice(uniqueDishes)
             print(dishtype)
@@ -40,10 +39,10 @@ class RecipeFinder:
                 currentDay += 1
 
             if ((isWeekend == "yes") and (currentDay > 3) and (dishtype["_id"] not in usedRecipes)):
-                weekRecipes[weekdays[currentDay]] = dishtype
-                usedRecipes.append(dishtype["_id"])
+                #weekRecipes[weekdays[currentDay]] = dishtype
+                #usedRecipes.append(dishtype["_id"])
 
-                currentDay += 1
+                #currentDay += 1
 
         weekdays = []
 

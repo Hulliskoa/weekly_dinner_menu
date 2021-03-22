@@ -27,7 +27,7 @@ class MongoDBHandler:
         try:
             col = self.db[collection]
             col.delete_one({"_id": entity})
-            print(Entity + " deleted from " + collection)
+            print(entity + " deleted from " + collection)
         except Exception as e:
             print("An exception occurred ::", e)
 

@@ -10,9 +10,12 @@
     	<a class="topButtons" id="homebutton" href="/">Home</a>
     	<a class="topButtons" id="checkEmails" href="/">Check email for new recipes</a>
 		<a class="topButtons" id="addNew" href="/new/newRecipe">Add new recipe manually</a>
-		<a class="topButtons" id="addNew" href="/new/newRecipe">Scrape a website for recipe</a>
+		<a  class="topButtons" href="#" onclick="sendRecipes('/sendemail/send')">Send recipes to subsribers</a>
 	    {% block content %}
 		{% endblock %}
 	</div>     
+	<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 </html>
+

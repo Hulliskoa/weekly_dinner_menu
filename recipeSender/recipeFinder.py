@@ -25,10 +25,10 @@ class RecipeFinder:
 
         currentDay = 0
         weekdays = [
-            "mandag", "tirsdag", "onsdag", "torsdag"
+            "mandag", "tirsdag", "onsdag", "torsdag"  # , "fredag", "lørdag", "søndag"
         ]
-#, "fredag", "lørdag", "søndag"
-        while currentDay <= 6:
+
+        while currentDay <= 3:
             dishtype = random.choice(uniqueDishes)
             print(dishtype)
             isWeekend = dishtype["weekend"]
@@ -39,11 +39,10 @@ class RecipeFinder:
                 currentDay += 1
 
             if ((isWeekend == "yes") and (currentDay > 3) and (dishtype["_id"] not in usedRecipes)):
+                print("Weekend")
                 #weekRecipes[weekdays[currentDay]] = dishtype
-                #usedRecipes.append(dishtype["_id"])
-
+                # usedRecipes.append(dishtype["_id"])
                 #currentDay += 1
-
         weekdays = []
 
         for x in weekRecipes.keys():
@@ -168,6 +167,8 @@ class RecipeFinder:
                     ingredient)
 
             else:
-                categorizedShoppingList[currentCategory["category"].squeeze()] = []
-                categorizedShoppingList[currentCategory["category"].squeeze()].append(ingredient)
+                categorizedShoppingList[currentCategory["category"].squeeze()] = [
+                ]
+                categorizedShoppingList[currentCategory["category"].squeeze()].append(
+                    ingredient)
         return categorizedShoppingList, basicShoppingList

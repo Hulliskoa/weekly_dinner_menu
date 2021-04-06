@@ -13,7 +13,7 @@ recipeScraper = recipeScraper.RecipeScraper()
 recipeSender = recipeSender.RecipeSender()
 
 # recipeScraper.readNewEmails()
-# recipeSender.sendEmails()
+
 
 
 app = Flask(__name__)
@@ -83,10 +83,6 @@ app.add_url_rule("/new/<entity>", view_func=newRecipeEndpoint.as_view("new_recip
 
 
 class recipeEndpoint(MethodView):
-    """ Example of a class inheriting from flask.views.MethodView
-
-    All 5 request methods are available at /api/example/<entity>
-    """
 
     def get(self, entity):
         """ Responds to GET requests """
@@ -112,3 +108,31 @@ class recipeEndpoint(MethodView):
 
 app.add_url_rule("/api/updaterecipe/<entity>",
                  view_func=recipeEndpoint.as_view("recipe_api"))
+
+class sendEmailsEndpoint(MethodView):
+
+    def get(self, entity):
+        """ Responds to GET requests """
+        return "Responding to a GET request"
+
+    def post(self, entity):
+        print("Sending emails")
+        recipeSender.sendEmails()
+        return "Responding to a POST request"
+        """ Responds to POST requests """
+
+    def put(self, entity):
+        """ Responds to PUT requests """
+        return "Responding to a PUT request"
+
+    def patch(self, entity):
+        """ Responds to PATCH requests """
+        return "Responding to a PATCH request"
+
+    def delete(self, entity):
+        """ Responds to DELETE requests """
+        return "Responding to a DELETE request"
+
+
+app.add_url_rule("/sendemail/<entity>",
+                 view_func=sendEmailsEndpoint.as_view("recipe_send"))
